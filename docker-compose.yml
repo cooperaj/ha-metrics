@@ -1,0 +1,18 @@
+version: "3.0"
+    
+services:
+  ha-metrics:
+    container_name: ha-metrics-debug
+    build: "./"
+    ports:
+      - "2345:2345"
+    security_opt:
+      - "seccomp:unconfined"
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/go/src/go.acpr.dev/ha-metrics
+    environment:
+      - HA_TOKEN=1
+      - HA_ENDPOINT=https://rbox.app/box/request/3ea37283-aaca-4a2f-b25b-8d2c1efc5471
+    command: dlv debug --headless --listen=:2345 --api-version=2 --log .
