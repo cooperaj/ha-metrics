@@ -5,7 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Go Debug",
+            "name": "Go Debug Local",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}",
+            "env": {
+                "HA_TOKEN": "1",
+                "HA_ENDPOINT": "https://rbox.app/box/request/3ea37283-aaca-4a2f-b25b-8d2c1efc5471"
+            },
+            "args": [
+                "-disk=/",
+                "-debug"
+            ]
+        },
+        {
+            "name": "Go Debug Docker",
             "type": "go",
             "request": "attach",
             "mode": "remote",

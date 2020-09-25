@@ -15,10 +15,10 @@ type Disk struct {
 	mountPoint   string
 	deviceName   string
 	reporter     reporter
-	pollInterval int
+	pollInterval *time.Duration
 }
 
-func NewDisk(mountPoint string, reporter reporter, pollInterval int) *Disk {
+func NewDisk(mountPoint string, reporter reporter, pollInterval *time.Duration) *Disk {
 	const usageFriendlyName = "Disk Usage"
 	const icon = "mdi:harddisk"
 
@@ -34,7 +34,7 @@ func NewDisk(mountPoint string, reporter reporter, pollInterval int) *Disk {
 	disk.reporter = reporter
 	disk.pollInterval = pollInterval
 
-	log.Infof("Disk metric collector with %ds polling interval created", pollInterval)
+	log.Infof("Disk metric collector for %s with %s polling interval created", mountPoint, pollInterval.String())
 
 	return disk
 }
@@ -58,18 +58,20 @@ func (d *Disk) Monitor(wg *sync.WaitGroup) {
 
 	wg.Add(1)
 	go func() {
-		stat, err := disk.Usage(d.mountPoint)
-		if err != nil {
-			log.Warnf("Unable to fetch disk usage for mount at %s: %s", d.mountPoint, err)
+		for {
+			stat, err := disk.Usage(d.mountPoint)
+			if err != nil {
+				log.Warnf("Unable to fetch disk usage for mount at %s: %s", d.mountPoint, err)
+			}
+
+			d.usageUnit.State = float64(stat.Used) / 1000000000.0                     //GB
+			d.usageUnit.Attributes["total_size"] = float64(stat.Total) / 1000000000.0 //GB
+			d.usageUnit.Attributes["used_percent"] = stat.UsedPercent
+
+			d.reporter.Report(fmt.Sprintf("disk_usage_%s", sanitisedDeviceName), d.usageUnit)
+
+			time.Sleep(*d.pollInterval)
 		}
-
-		d.usageUnit.State = float64(stat.Used) / 1000000000.0                     //GB
-		d.usageUnit.Attributes["total_size"] = float64(stat.Total) / 1000000000.0 //GB
-		d.usageUnit.Attributes["used_percent"] = stat.UsedPercent
-
-		d.reporter.Report(fmt.Sprintf("disk_usage_%s", sanitisedDeviceName), d.usageUnit)
-
-		time.Sleep(time.Second * time.Duration(d.pollInterval))
 	}()
 }
 
