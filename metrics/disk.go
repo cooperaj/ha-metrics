@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/v3/disk"
 	log "github.com/sirupsen/logrus"
 )
 

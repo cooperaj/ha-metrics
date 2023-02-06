@@ -65,7 +65,7 @@ func (r *reporter) Run(wg *sync.WaitGroup) {
 					log.Fatalf("Unable to marshal JSON for sensor %s", report.sensor)
 				}
 
-				r.pushReport(report.sensor, json)
+				go r.pushReport(report.sensor, json)
 			case <-r.Stop:
 				wg.Done()
 				return

@@ -35,20 +35,32 @@ func main() {
 			"ha_metrics_",
 			"A prefix added to all sensor entities created (also via SENSOR_PREFIX)",
 		)
-		CPUPollInterval = fs.Duration(
+		cpuPollInterval = fs.Duration(
 			"cpu-poll-interval",
 			20*time.Second,
 			"The poll time for CPU metrics i.e. 20s, 5m, 1h (also via CPU_POLL_INTERVAL)",
 		)
-		DiskPollInterval = fs.Duration(
+		systemLoadInterval = fs.Duration(
+			"system-load-poll-interval",
+			20*time.Second,
+			"The poll time for system load i.e. 20s, 5m, 1h (also via SYSTEM_LOAD_POLL_INTERVAL)",
+		)
+		diskPollInterval = fs.Duration(
 			"disk-poll-interval",
 			30*time.Minute,
 			"The poll time for Disk metrics i.e. 20s, 5m, 1h (also via DISK_POLL_INTERVAL)",
 		)
-		disks diskSlice
-		debug = fs.Bool("debug", false, "Enable debug logging")
+		disks             diskSlice
+		networkIOInterval = fs.Duration(
+			"netio-poll-interval",
+			20*time.Second,
+			"The poll time for network IO i.e. 20s, 5m, 1h (also via NETIO_POLL_INTERVAL)",
+		)
+		netIOInterfaces netIOIfaceSlice
+		debug           = fs.Bool("debug", false, "Enable debug logging")
 	)
 	fs.Var(&disks, "disk", "A mountpoint to be reported as a disk, repeatable")
+	fs.Var(&netIOInterfaces, "iface", "An network interface to monitor, repeatable")
 	fs.Usage = usage
 
 	ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix())
@@ -67,10 +79,15 @@ func main() {
 	reporter := NewReporter(*endpoint, *token, *sensorPrefix)
 	reporter.Run(&wg)
 
-	collectors = append(collectors, metrics.NewCpu(reporter, CPUPollInterval))
+	collectors = append(collectors, metrics.NewCpu(reporter, cpuPollInterval))
+	collectors = append(collectors, metrics.NewLoad(reporter, systemLoadInterval))
 
 	for _, disk := range disks {
-		collectors = append(collectors, metrics.NewDisk(disk, reporter, DiskPollInterval))
+		collectors = append(collectors, metrics.NewDisk(disk, reporter, diskPollInterval))
+	}
+
+	for _, iface := range netIOInterfaces {
+		collectors = append(collectors, metrics.NewNetIO(iface, reporter, networkIOInterval))
 	}
 
 	for _, collector := range collectors {

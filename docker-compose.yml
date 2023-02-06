@@ -14,5 +14,5 @@ services:
       - .:/go/src/go.acpr.dev/ha-metrics
     environment:
       - HA_TOKEN=1
-      - HA_ENDPOINT=https://rbox.app/box/request/3ea37283-aaca-4a2f-b25b-8d2c1efc5471
-    command: dlv debug --headless --listen=:2345 --api-version=2 --log .
+      - HA_ENDPOINT=https://rbox.app/box/request/8f606738-e3f0-40f4-a660-b9a46c92844c
+    command: dlv debug --headless --listen=:2345 --api-version=2 --log . -- "-disk=/" --netio --debug

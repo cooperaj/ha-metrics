@@ -12,10 +12,13 @@
             "program": "${workspaceFolder}",
             "env": {
                 "HA_TOKEN": "1",
-                "HA_ENDPOINT": "https://rbox.app/box/request/3ea37283-aaca-4a2f-b25b-8d2c1efc5471"
+                "HA_ENDPOINT": "https://v2.rbox.app/box/request/018627a5-3272-73dc-a0a9-2cced41a66a3"
             },
             "args": [
                 "-disk=/",
+                "-disk=/Volumes/MiBigDisk",
+                "-disk=/Volumes/Time Machine 1",
+                "-iface=en0",
                 "-debug"
             ]
         },
