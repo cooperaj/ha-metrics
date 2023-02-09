@@ -26,6 +26,7 @@ func NewDisk(mountPoint string, reporter reporter, pollInterval *time.Duration) 
 
 	unit := NewMetric()
 	unit.Attributes["friendly_name"] = usageFriendlyName
+	unit.Attributes["device_class"] = "data_size"
 	unit.Attributes["unit_of_measurement"] = "GB"
 	unit.Attributes["icon"] = icon
 

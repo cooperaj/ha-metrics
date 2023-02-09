@@ -24,11 +24,12 @@ func NewCpu(reporter reporter, pollInterval *time.Duration) *Cpu {
 	usageMetric := NewMetric()
 	usageMetric.Attributes["friendly_name"] = "CPU Usage"
 	usageMetric.Attributes["unit_of_measurement"] = "%"
-	usageMetric.Attributes["icon"] = "mdi:memory"
+	usageMetric.Attributes["icon"] = "mdi:cpu-64-bit"
 	cpu.usageMetric = usageMetric
 
 	tempMetric := NewMetric()
 	tempMetric.Attributes["friendly_name"] = "CPU Temperature"
+	tempMetric.Attributes["device_class"] = "temperature"
 	tempMetric.Attributes["unit_of_measurement"] = "°C"
 	tempMetric.Attributes["icon"] = "mdi:thermometer"
 	cpu.tempMetric = tempMetric

@@ -40,10 +40,15 @@ func main() {
 			20*time.Second,
 			"The poll time for CPU metrics i.e. 20s, 5m, 1h (also via CPU_POLL_INTERVAL)",
 		)
-		systemLoadInterval = fs.Duration(
+		systemLoadPollInterval = fs.Duration(
 			"system-load-poll-interval",
 			20*time.Second,
 			"The poll time for system load i.e. 20s, 5m, 1h (also via SYSTEM_LOAD_POLL_INTERVAL)",
+		)
+		memoryPollInterval = fs.Duration(
+			"memory-poll-interval",
+			20*time.Second,
+			"The poll time for system memory usage i.e. 20s, 5m, 1h (also via MEMORY_POLL_INTERVAL)",
 		)
 		diskPollInterval = fs.Duration(
 			"disk-poll-interval",
@@ -61,14 +66,18 @@ func main() {
 	)
 	fs.Var(&disks, "disk", "A mountpoint to be reported as a disk, repeatable")
 	fs.Var(&netIOInterfaces, "iface", "An network interface to monitor, repeatable")
-	fs.Usage = usage
+
+	fs.Usage = func() {
+		fmt.Printf("Usage of %s:\n", os.Args[0])
+		fs.PrintDefaults()
+	}
 
 	ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix())
 
 	if *endpoint == "" || *token == "" {
 		fmt.Println("Missing -ha-endpoint or -ha-token configuration value")
 		fmt.Println("")
-		usage()
+		fs.Usage()
 		os.Exit(1)
 	}
 
@@ -80,14 +89,15 @@ func main() {
 	reporter.Run(&wg)
 
 	collectors = append(collectors, metrics.NewCpu(reporter, cpuPollInterval))
-	collectors = append(collectors, metrics.NewLoad(reporter, systemLoadInterval))
+	collectors = append(collectors, metrics.NewLoad(reporter, systemLoadPollInterval))
+	collectors = append(collectors, metrics.NewMemory(reporter, memoryPollInterval))
 
 	for _, disk := range disks {
 		collectors = append(collectors, metrics.NewDisk(disk, reporter, diskPollInterval))
 	}
 
 	for _, iface := range netIOInterfaces {
-		collectors = append(collectors, metrics.NewNetIO(iface, reporter, networkIOInterval))
+		collectors = append(collectors, metrics.NewNetIO(iface, metrics.Mbit, reporter, networkIOInterval))
 	}
 
 	for _, collector := range collectors {
@@ -97,9 +107,4 @@ func main() {
 	log.Printf("Started %d collector/s", len(collectors))
 
 	wg.Wait()
-}
-
-func usage() {
-	fmt.Printf("Usage of %s:\n", os.Args[0])
-	flag.PrintDefaults()
 }
