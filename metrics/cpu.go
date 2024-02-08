@@ -12,13 +12,14 @@ import (
 )
 
 type Cpu struct {
-	usageMetric  *metric
-	tempMetric   *metric
-	reporter     reporter
-	pollInterval *time.Duration
+	usageMetric     *metric
+	tempMetric      *metric
+	reporter        reporter
+	tempSensorIndex *int
+	pollInterval    *time.Duration
 }
 
-func NewCpu(reporter reporter, pollInterval *time.Duration) *Cpu {
+func NewCpu(reporter reporter, tempSensorIndex *int, pollInterval *time.Duration) *Cpu {
 	cpu := new(Cpu)
 
 	usageMetric := NewMetric()
@@ -35,9 +36,24 @@ func NewCpu(reporter reporter, pollInterval *time.Duration) *Cpu {
 	cpu.tempMetric = tempMetric
 
 	cpu.reporter = reporter
+	cpu.tempSensorIndex = tempSensorIndex
 	cpu.pollInterval = pollInterval
 
 	log.Infof("CPU metric collector with %s polling interval created", pollInterval.String())
+
+	temps, _ := host.SensorsTemperatures()
+	if len(temps) > 0 {
+		log.Infof(
+			"Found %d CPU temperature sensors, using index %d (%s)",
+			len(temps),
+			*tempSensorIndex,
+			temps[*tempSensorIndex].SensorKey,
+		)
+
+		for index, temp := range temps {
+			log.Infof("    %d: %s", index, temp.SensorKey)
+		}
+	}
 
 	return cpu
 }
@@ -84,7 +100,7 @@ func (c *Cpu) Monitor(wg *sync.WaitGroup) {
 
 			temps, err := host.SensorsTemperatures()
 			if len(temps) > 0 {
-				c.tempMetric.State = temps[0].Temperature
+				c.tempMetric.State = temps[*c.tempSensorIndex].Temperature
 				c.reporter.Report("cpu_temperature", c.tempMetric)
 			}
 

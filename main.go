@@ -40,6 +40,11 @@ func main() {
 			20*time.Second,
 			"The poll time for CPU metrics i.e. 20s, 5m, 1h (also via CPU_POLL_INTERVAL)",
 		)
+		cpuTempSensor = fs.Int(
+			"cpu-temp-sensor",
+			0,
+			"The specific temperature sensor that you want reported. Possible index values reported on application start. (also via CPU_TEMP_SENSOR)",
+		)
 		systemLoadPollInterval = fs.Duration(
 			"system-load-poll-interval",
 			20*time.Second,
@@ -88,7 +93,7 @@ func main() {
 	reporter := NewReporter(*endpoint, *token, *sensorPrefix)
 	reporter.Run(&wg)
 
-	collectors = append(collectors, metrics.NewCpu(reporter, cpuPollInterval))
+	collectors = append(collectors, metrics.NewCpu(reporter, cpuTempSensor, cpuPollInterval))
 	collectors = append(collectors, metrics.NewLoad(reporter, systemLoadPollInterval))
 	collectors = append(collectors, metrics.NewMemory(reporter, memoryPollInterval))
 

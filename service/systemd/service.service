@@ -4,6 +4,7 @@ Description=Home Assistant metrics service
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/ha-metrics
+RestartSec=10
 Restart=on-failure
 
 [Install]
