@@ -24,8 +24,8 @@ install:
 	install -c -m 755 out/bin/$(OS)/$(BINARY_NAME) $(DESTDIR)$(PREFIX)/bin/
 
 	install -c -m 644 service/systemd/service.service /etc/systemd/system/$(BINARY_NAME).service
-#install -d /etc/systemd/system/$(BINARY_NAME).service.d
-#install -c -m 600 service/systemd/service.conf /etc/systemd/system/$(BINARY_NAME).service.d/override.conf
+    install -d /etc/systemd/system/$(BINARY_NAME).service.d
+    :install -c -m 600 service/systemd/service.conf /etc/systemd/system/$(BINARY_NAME).service.d/override.conf
 	systemctl daemon-reload
 
 .PHONY: uninstall
