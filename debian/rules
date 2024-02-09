@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+DISTRIBUTION = $(shell lsb_release -sr)
+VERSION = 0.0.1
+PACKAGEVERSION = $(VERSION)-0
+
+%:
+	dh $@ --with systemd
+
+override_dh_auto_clean:
+	rm -Rf obj-x86_64-linux-gnu/
+	make clean
+
+override_dh_auto_test:
+override_dh_auto_build:
+	make build
+
+override_dh_auto_install:
+	make install DESTDIR=debian/ha-metrics
+
+override_dh_gencontrol:
+	dh_gencontrol -- -v$(PACKAGEVERSION)
+
+override_dh_strip:

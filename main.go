@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/peterbourgon/ff/v3"
+	"github.com/peterbourgon/ff/v3/fftoml"
 	log "github.com/sirupsen/logrus"
 	"go.acpr.dev/ha-metrics/metrics"
 )
@@ -68,6 +69,7 @@ func main() {
 		)
 		netIOInterfaces netIOIfaceSlice
 		debug           = fs.Bool("debug", false, "Enable debug logging")
+		_               = fs.String("config", "", "An optional toml formatted configuration file")
 	)
 	fs.Var(&disks, "disk", "A mountpoint to be reported as a disk, repeatable")
 	fs.Var(&netIOInterfaces, "iface", "An network interface to monitor, repeatable")
@@ -77,7 +79,11 @@ func main() {
 		fs.PrintDefaults()
 	}
 
-	ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix())
+	ff.Parse(fs, os.Args[1:],
+		ff.WithEnvVars(),
+		ff.WithConfigFileFlag("config"),
+		ff.WithConfigFileParser(fftoml.Parser),
+	)
 
 	if *endpoint == "" || *token == "" {
 		fmt.Println("Missing -ha-endpoint or -ha-token configuration value")

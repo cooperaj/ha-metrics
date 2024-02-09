@@ -3,7 +3,7 @@ Description=Home Assistant metrics service
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/ha-metrics
+ExecStart=/usr/bin/ha-metrics -config /etc/ha-metrics/conf.toml
 RestartSec=10
 Restart=on-failure
 

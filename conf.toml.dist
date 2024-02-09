@@ -1,0 +1,24 @@
+# Configuration for ha-metrics
+#
+# An endpoint is REQUIRED.
+# ha-endpoint = "https://home_assistant_instance:8123"
+
+# The authorisation toke is REQUIRED.
+# ha-token = "token_is_required"
+
+#
+# Some of the available configuration options
+# Run 'ha-metrics' with no arugments to see a full list of configurable values.
+# Value names are the same without the '-' (hyphen).
+#
+
+# Define the prefix that will be used for your sensor names
+# sensor-prefix = "myserver_metrics"
+
+# Report on your available disks
+# disk = ["/"]
+# disk = ["/", "/mnt/data"]
+
+# Report on your net interfaces
+# iface = ["eth0"]
+# iface = ["enp1s0", "enp2s0"]
