@@ -15,7 +15,7 @@ build:
 
 .PHONY: build-deb
 build-deb:
-	dpkg-buildpackage -us -uc -b 
+	dpkg-buildpackage -us -uc -b -a $(ARCH)
 
 .PHONY: clean
 clean:
@@ -23,7 +23,7 @@ clean:
 	-rm -R out/
 
 .PHONY: clean-deb
-clean-deb:
+clean-deb:	
 	dpkg-buildpackage -Tclean
 
 .PHONY: install
